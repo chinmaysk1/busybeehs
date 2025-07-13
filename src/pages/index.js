@@ -26,7 +26,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f9f7f4] text-black relative overflow-hidden">
+    <div className="min-h-screen bg-[#fff6e8] text-black relative overflow-hidden">
       {/* Font Awesome CDN */}
       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
@@ -92,7 +92,7 @@ export default function Home() {
                       <i className={`${service.icon} text-xl text-yellow-500`}></i>
                     </div>
                   </div>
-                  <h3 className="text-xs text-gray-600 text-center leading-tight mt-2">{service.title}</h3>
+                  <h3 className="text-xs text-gray-600 text-center leading-tight mt-2 font-bold">{service.title}</h3>
                 </div>
               ))}
             </div>
@@ -116,19 +116,19 @@ export default function Home() {
                       <i className={`${service.icon} text-xl text-yellow-500`}></i>
                     </div>
                   </div>
-                  <h3 className="text-xs text-gray-600 text-center leading-tight mt-2">{service.title}</h3>
+                  <h3 className="text-xs text-gray-600 text-center leading-tight mt-2 font-bold">{service.title}</h3>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Call to Action */}
-          <div className="bg-yellow-50 rounded-3xl p-6 md:p-10 mt-20 mb-12 shadow-sm text-center border border-yellow-100">
+          <div className="bg-gray-800 rounded-3xl p-6 md:p-10 mt-20 mb-12 shadow-sm text-center border border-yellow-100">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 flex justify-center items-center gap-2">
               <i className="fas fa-tools text-yellow-500 text-xl pr-3"></i>
-              Let Busy Bee simplify your home maintenance
+              <span className='text-gray-100'>Let Busy Bee simplify your home maintenance</span>
             </h2>
-            <p className="text-base text-gray-600 mb-8">
+            <p className="text-base text-gray-300 mb-8">
               One solution. One team. One call.
             </p>
 
@@ -155,7 +155,7 @@ export default function Home() {
       </main>
 
       <footer>
-        <div className='flex h-10 items-center justify-center text-center bg-gray-200'>
+        <div className='flex h-10 items-center justify-center text-center bg-yellow-100'>
           <p className='text-black text-sm'>© Copyright 2025: <span className='text-yellow-600 cursor-pointer' onClick={() => router.push("/")}>Busy Bee</span> All rights reserved.</p>
         </div>
       </footer>

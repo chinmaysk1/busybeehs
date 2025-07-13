@@ -1,3 +1,7 @@
 Docker Setup:
+To re-run after changes,
+git pull
 docker build -t nextjs-app .
-docker run -d -p 3000:3000 nextjs-app
+docker stop [ps-id]
+docker rm [ps-id]
+docker run -d -p 8080:3000 nextjs-app
