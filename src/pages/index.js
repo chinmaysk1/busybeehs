@@ -23,135 +23,108 @@ export default function Home() {
   ];
 
   function VideoBackground() {
-    const videos = ['/1.mp4', '/2.mp4', '/3.mp4'];
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const videoRefs = [useRef(null), useRef(null), useRef(null)];
-    const [isInitialized, setIsInitialized] = useState(false);
-
-    const initializeVideos = useCallback(async () => {
-      // Set video sources and load all videos
-      const loadPromises = videos.map((videoSrc, index) => {
-        const video = videoRefs[index].current;
-        if (!video) return Promise.resolve();
-        
-        video.src = videoSrc;
-        return new Promise(resolve => {
-          video.addEventListener('loadeddata', resolve, { once: true });
-          video.load();
-        });
-      });
-
-      await Promise.all(loadPromises);
-
-      // Start the first video
-      try {
-        const firstVideo = videoRefs[0].current;
-        if (firstVideo) {
-          await firstVideo.play();
-          setIsInitialized(true);
-        }
-      } catch (err) {
-        console.error('Video autoplay failed:', err);
-      }
-    }, [videos, videoRefs]);
-
-    useEffect(() => {
-      initializeVideos();
-    }, [initializeVideos]);
-
-    const handleVideoTransition = useCallback(() => {
-      if (!isInitialized) return;
-
-      const currentVideo = videoRefs[currentIndex].current;
-      const nextIndex = (currentIndex + 1) % videos.length;
-      const nextVideo = videoRefs[nextIndex].current;
-
-      if (!currentVideo || !nextVideo) return;
-      
-      const timeRemaining = currentVideo.duration - currentVideo.currentTime;
-      
-      // Start transition 0.5 seconds before current video ends
-      if (timeRemaining <= 0.5) {
-        // Prepare next video to start from beginning
-        nextVideo.currentTime = 0;
-        
-        // Start playing next video
-        nextVideo.play().then(() => {
-          // Smooth transition using opacity
-          setTimeout(() => {
-            setCurrentIndex(nextIndex);
-            
-            // Pause the previous video after transition
-            setTimeout(() => {
-              currentVideo.pause();
-              currentVideo.currentTime = 0; // Reset for next cycle
-            }, 1000); // Wait for opacity transition to complete
-          }, 50); // Small delay to ensure next video is playing
-        }).catch(err => {
-          console.error('Video transition failed:', err);
-        });
-      }
-    }, [currentIndex, isInitialized, videos.length, videoRefs]);
-
-    useEffect(() => {
-      if (!isInitialized) return;
-
-      const currentVideo = videoRefs[currentIndex].current;
-      
-      // Use both timeupdate and a backup interval for reliability
-      const intervalId = setInterval(handleVideoTransition, 100);
-      if (currentVideo) {
-        currentVideo.addEventListener('timeupdate', handleVideoTransition);
-      }
-
-      // Cleanup
-      return () => {
-        clearInterval(intervalId);
-        if (currentVideo) {
-          currentVideo.removeEventListener('timeupdate', handleVideoTransition);
-        }
-      };
-    }, [handleVideoTransition, currentIndex, isInitialized, videoRefs]);
-
-    // Handle video end as backup
-    useEffect(() => {
-      if (!isInitialized) return;
-
-      const currentVideo = videoRefs[currentIndex].current;
-      
-      const handleVideoEnd = () => {
-        const nextIndex = (currentIndex + 1) % videos.length;
-        const nextVideo = videoRefs[nextIndex].current;
-        if (nextVideo) {
-          nextVideo.currentTime = 0;
-          nextVideo.play();
-          setCurrentIndex(nextIndex);
-        }
-      };
-
-      if (currentVideo) {
-        currentVideo.addEventListener('ended', handleVideoEnd);
-        return () => currentVideo.removeEventListener('ended', handleVideoEnd);
-      }
-    }, [currentIndex, isInitialized, videos.length, videoRefs]);
-
-    return (
-      <div className="absolute inset-0">
-        {videos.map((_, i) => (
-          <video
-            key={i}
-            ref={videoRefs[i]}
-            className={`absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-              currentIndex === i ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-            muted
-            playsInline
-            preload="metadata"
-          />
-        ))}
-      </div>
-    );
-  }
+   const videos = ['/1.mp4', '/2.mp4', '/3.mp4'];
+   const [currentIndex, setCurrentIndex] = useState(0);
+   const videoRefs = [useRef(null), useRef(null), useRef(null)];
+   const [isInitialized, setIsInitialized] = useState(false);
+   useEffect(() => {
+     const initializeVideos = async () => {
+       // Set video sources and load all videos
+       const loadPromises = videos.map((videoSrc, index) => {
+         const video = videoRefs[index].current;
+         if (!video) return Promise.resolve();
+         video.src = videoSrc;
+         return new Promise(resolve => {
+           video.addEventListener('loadeddata', resolve, { once: true });
+           video.load();
+         });
+       });
+       await Promise.all(loadPromises);
+       // Start the first video
+       try {
+         const firstVideo = videoRefs[0].current;
+         if (firstVideo) {
+           await firstVideo.play();
+           setIsInitialized(true);
+         }
+       } catch (err) {
+         console.error('Video autoplay failed:', err);
+       }
+     };
+     initializeVideos();
+   }, []);
+   useEffect(() => {
+     if (!isInitialized) return;
+     const currentVideo = videoRefs[currentIndex].current;
+     const nextIndex = (currentIndex + 1) % videos.length;
+     const nextVideo = videoRefs[nextIndex].current;
+     const handleVideoTransition = () => {
+       if (!currentVideo || !nextVideo) return;
+       const timeRemaining = currentVideo.duration - currentVideo.currentTime;
+       // Start transition 0.5 seconds before current video ends
+       if (timeRemaining <= 0.5) {
+         // Prepare next video to start from beginning
+         nextVideo.currentTime = 0;
+         // Start playing next video
+         nextVideo.play().then(() => {
+           // Smooth transition using opacity
+           setTimeout(() => {
+             setCurrentIndex(nextIndex);
+             // Pause the previous video after transition
+             setTimeout(() => {
+               currentVideo.pause();
+               currentVideo.currentTime = 0; // Reset for next cycle
+             }, 1000); // Wait for opacity transition to complete
+           }, 50); // Small delay to ensure next video is playing
+         }).catch(err => {
+           console.error('Video transition failed:', err);
+         });
+       }
+     };
+     // Use both timeupdate and a backup interval for reliability
+     const intervalId = setInterval(handleVideoTransition, 100);
+     currentVideo.addEventListener('timeupdate', handleVideoTransition);
+     // Cleanup
+     return () => {
+       clearInterval(intervalId);
+       currentVideo.removeEventListener('timeupdate', handleVideoTransition);
+     };
+   }, [currentIndex, isInitialized]);
+   // Handle video end as backup
+   useEffect(() => {
+     if (!isInitialized) return;
+     const currentVideo = videoRefs[currentIndex].current;
+     const handleVideoEnd = () => {
+       const nextIndex = (currentIndex + 1) % videos.length;
+       const nextVideo = videoRefs[nextIndex].current;
+       if (nextVideo) {
+         nextVideo.currentTime = 0;
+         nextVideo.play();
+         setCurrentIndex(nextIndex);
+       }
+     };
+     if (currentVideo) {
+       currentVideo.addEventListener('ended', handleVideoEnd);
+       return () => currentVideo.removeEventListener('ended', handleVideoEnd);
+     }
+   }, [currentIndex, isInitialized]);
+   return (
+     <div className="absolute inset-0">
+       {videos.map((_, i) => (
+         <video
+           key={i}
+           ref={videoRefs[i]}
+           className={`absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+             currentIndex === i ? 'opacity-100 z-10' : 'opacity-0 z-0'
+           }`}
+           muted
+           playsInline
+           preload="metadata"
+         />
+       ))}
+     </div>
+   );
+ }
 
   return (
     <div className="min-h-screen bg-[#fff6e8] text-black relative overflow-hidden">
