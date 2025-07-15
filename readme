@@ -1,7 +1,7 @@
 Docker Setup:
 To re-run after changes,
 git pull
-docker build -t nextjs-app .
+docker build -t busybeehs .
 docker stop [ps-id]
 docker rm [ps-id]
-docker run -d -p 80:3000 --name nextjs-app nextjs-app
+docker run -d -p 3000:3000 --name busybeehs busybeehs

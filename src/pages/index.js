@@ -161,7 +161,7 @@ function VideoBackground() {
 
         {/* Navbar */}
         <div className='navbar absolute top-12 left-12 w-20 cursor-pointer z-20' onClick={() => router.push("/")}>
-          <img src="/logo.png" />
+          <img src="/logo.png" alt="logo"/>
         </div>
 
         <div className='absolute top-15 right-5 w-20 cursor-pointer z-20'>
@@ -248,7 +248,7 @@ function VideoBackground() {
                   More Than Just Cleaning
                 </h2>
                 <p className="text-base text-gray-300 text-center max-w-2xl mx-auto leading-5 mt-5">
-                  We've built a vetted team of expert partners to deliver essential home services — so you don’t have to chase down separate vendors ever again.
+                  We've built a vetted team of expert partners to deliver essential home services — so you don't have to chase down separate vendors ever again.
                 </p>
                 <div className="mt-8 w-30 h-0.75 bg-gradient-to-r from-orange-300 to-yellow-400 mx-auto"></div>
               </div>
