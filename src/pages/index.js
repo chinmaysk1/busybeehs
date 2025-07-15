@@ -1,5 +1,6 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import ServicesCarousel from './components/ServicesCarousel';
 
 export default function Home() {
@@ -20,14 +21,14 @@ export default function Home() {
     { icon: "fas fa-paint-roller", title: "Painting (Interior/Exterior)", colorClass: "text-white", image: "painting.jpg" },
     { icon: "fas fa-thermometer-half", title: "HVAC Services", colorClass: "text-cyan-500", image: "hvac.jpg" }
   ];
-function VideoBackground() {
-  const videos = ['/1.mp4', '/2.mp4', '/3.mp4'];
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const videoRefs = [useRef(null), useRef(null), useRef(null)];
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  useEffect(() => {
-    const initializeVideos = async () => {
+  function VideoBackground() {
+    const videos = ['/1.mp4', '/2.mp4', '/3.mp4'];
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const videoRefs = [useRef(null), useRef(null), useRef(null)];
+    const [isInitialized, setIsInitialized] = useState(false);
+
+    const initializeVideos = useCallback(async () => {
       // Set video sources and load all videos
       const loadPromises = videos.map((videoSrc, index) => {
         const video = videoRefs[index].current;
@@ -52,19 +53,19 @@ function VideoBackground() {
       } catch (err) {
         console.error('Video autoplay failed:', err);
       }
-    };
+    }, [videos, videoRefs]);
 
-    initializeVideos();
-  }, []);
+    useEffect(() => {
+      initializeVideos();
+    }, [initializeVideos]);
 
-  useEffect(() => {
-    if (!isInitialized) return;
+    const handleVideoTransition = useCallback(() => {
+      if (!isInitialized) return;
 
-    const currentVideo = videoRefs[currentIndex].current;
-    const nextIndex = (currentIndex + 1) % videos.length;
-    const nextVideo = videoRefs[nextIndex].current;
+      const currentVideo = videoRefs[currentIndex].current;
+      const nextIndex = (currentIndex + 1) % videos.length;
+      const nextVideo = videoRefs[nextIndex].current;
 
-    const handleVideoTransition = () => {
       if (!currentVideo || !nextVideo) return;
       
       const timeRemaining = currentVideo.duration - currentVideo.currentTime;
@@ -90,58 +91,67 @@ function VideoBackground() {
           console.error('Video transition failed:', err);
         });
       }
-    };
+    }, [currentIndex, isInitialized, videos.length, videoRefs]);
 
-    // Use both timeupdate and a backup interval for reliability
-    const intervalId = setInterval(handleVideoTransition, 100);
-    currentVideo.addEventListener('timeupdate', handleVideoTransition);
+    useEffect(() => {
+      if (!isInitialized) return;
 
-    // Cleanup
-    return () => {
-      clearInterval(intervalId);
-      currentVideo.removeEventListener('timeupdate', handleVideoTransition);
-    };
-  }, [currentIndex, isInitialized]);
-
-  // Handle video end as backup
-  useEffect(() => {
-    if (!isInitialized) return;
-
-    const currentVideo = videoRefs[currentIndex].current;
-    
-    const handleVideoEnd = () => {
-      const nextIndex = (currentIndex + 1) % videos.length;
-      const nextVideo = videoRefs[nextIndex].current;
-      if (nextVideo) {
-        nextVideo.currentTime = 0;
-        nextVideo.play();
-        setCurrentIndex(nextIndex);
+      const currentVideo = videoRefs[currentIndex].current;
+      
+      // Use both timeupdate and a backup interval for reliability
+      const intervalId = setInterval(handleVideoTransition, 100);
+      if (currentVideo) {
+        currentVideo.addEventListener('timeupdate', handleVideoTransition);
       }
-    };
 
-    if (currentVideo) {
-      currentVideo.addEventListener('ended', handleVideoEnd);
-      return () => currentVideo.removeEventListener('ended', handleVideoEnd);
-    }
-  }, [currentIndex, isInitialized]);
+      // Cleanup
+      return () => {
+        clearInterval(intervalId);
+        if (currentVideo) {
+          currentVideo.removeEventListener('timeupdate', handleVideoTransition);
+        }
+      };
+    }, [handleVideoTransition, currentIndex, isInitialized, videoRefs]);
 
-  return (
-    <div className="absolute inset-0">
-      {videos.map((_, i) => (
-        <video
-          key={i}
-          ref={videoRefs[i]}
-          className={`absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-            currentIndex === i ? 'opacity-100 z-10' : 'opacity-0 z-0'
-          }`}
-          muted
-          playsInline
-          preload="metadata"
-        />
-      ))}
-    </div>
-  );
-}
+    // Handle video end as backup
+    useEffect(() => {
+      if (!isInitialized) return;
+
+      const currentVideo = videoRefs[currentIndex].current;
+      
+      const handleVideoEnd = () => {
+        const nextIndex = (currentIndex + 1) % videos.length;
+        const nextVideo = videoRefs[nextIndex].current;
+        if (nextVideo) {
+          nextVideo.currentTime = 0;
+          nextVideo.play();
+          setCurrentIndex(nextIndex);
+        }
+      };
+
+      if (currentVideo) {
+        currentVideo.addEventListener('ended', handleVideoEnd);
+        return () => currentVideo.removeEventListener('ended', handleVideoEnd);
+      }
+    }, [currentIndex, isInitialized, videos.length, videoRefs]);
+
+    return (
+      <div className="absolute inset-0">
+        {videos.map((_, i) => (
+          <video
+            key={i}
+            ref={videoRefs[i]}
+            className={`absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              currentIndex === i ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
+            muted
+            playsInline
+            preload="metadata"
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fff6e8] text-black relative overflow-hidden">
@@ -161,7 +171,7 @@ function VideoBackground() {
 
         {/* Navbar */}
         <div className='navbar absolute top-12 left-12 w-20 cursor-pointer z-20' onClick={() => router.push("/")}>
-          <img src="/logo.png" alt="logo"/>
+          <Image src="/logo.png" alt="Busy Bee Logo" width={80} height={80} />
         </div>
 
         <div className='absolute top-15 right-5 w-20 cursor-pointer z-20'>
@@ -170,7 +180,7 @@ function VideoBackground() {
 
         {/* Hero Content */}
         <div className="relative z-20 flex items-center justify-center h-full px-4 mt-12">
-          <div className="max-w-5xl mx-auto text-center transition-all duration-1000 ${'opacity-100 translate-y-0">
+          <div className="max-w-5xl mx-auto text-center transition-all duration-1000 opacity-100 translate-y-0">
             <h1 className="text-4xl md:text-6xl font-black text-white mb-4 drop-shadow-lg leading-17.5">
               Busy Bee
               <br />
@@ -189,16 +199,8 @@ function VideoBackground() {
         </div>
       </section>
 
-
       {/* Services Section */}
       <section className="w-screen bg-[#000] relative">
-        {/* Subtle background hues */}
-        {/* <div className="absolute inset-0 overflow-hidden z-0">
-          <div className="absolute w-[700px] h-[700px] bg-yellow-900 opacity-10 rounded-full blur-3xl top-10 left-10" />
-          <div className="absolute w-[900px] h-[900px] bg-yellow-900 opacity-10 rounded-full blur-3xl bottom-16 right-16" />
-          <div className="absolute w-[1000px] h-[1000px] bg-yellow-900 opacity-10 rounded-full blur-3xl top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2" />
-        </div> */}
-
         <div className="relative z-10 px-4 py-16">
           <div className="mx-auto">
             {/* Services Section */}
@@ -210,7 +212,7 @@ function VideoBackground() {
                   The Hive of Home Help 
                 </h2>
                 <p className="text-base text-gray-300 text-center max-w-2xl mx-auto leading-5 mt-5">
-                  Whether it's carpets, windows, vents or more, we deliver dependable service with professional results—so you never have to worry about the details.
+                  Whether it&apos;s carpets, windows, vents or more, we deliver dependable service with professional results—so you never have to worry about the details.
                 </p>
                 <div className="mt-8 w-30 h-0.75 bg-gradient-to-r from-orange-300 to-yellow-400 mx-auto"></div>
               </div>
@@ -248,7 +250,7 @@ function VideoBackground() {
                   More Than Just Cleaning
                 </h2>
                 <p className="text-base text-gray-300 text-center max-w-2xl mx-auto leading-5 mt-5">
-                  We've built a vetted team of expert partners to deliver essential home services — so you don't have to chase down separate vendors ever again.
+                  We&apos;ve built a vetted team of expert partners to deliver essential home services — so you don&apos;t have to chase down separate vendors ever again.
                 </p>
                 <div className="mt-8 w-30 h-0.75 bg-gradient-to-r from-orange-300 to-yellow-400 mx-auto"></div>
               </div>
