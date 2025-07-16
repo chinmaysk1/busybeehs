@@ -180,7 +180,7 @@ export default function Home() {
             <div className="mx-auto">
 
               {/* Direct Services */}
-              <div className="text-center mb-12 -mt-8">
+              <div className="text-center mb-12 mt-20">
                 <h2 className="text-2xl font-bold text-gray-100 mb-2 flex items-center justify-center gap-3">
                   The Hive of Home Help 
                 </h2>
@@ -193,7 +193,7 @@ export default function Home() {
               <ServicesCarousel directServices={directServices}/>
 
               {/* Filler Video Section */}
-              <section className="w-[100vw] relative h-[100vh] bg-black overflow-hidden my-20">
+              <section className="-ml-4 mt-50 w-[100vw] relative h-[100vh] bg-black overflow-hidden my-20">
                 <div className="absolute inset-0 bg-black/30 z-10" />
                 {/* Centered Hero Text */}
                 <div className="absolute inset-0 z-20 flex items-center justify-center px-6 text-center">
@@ -218,7 +218,7 @@ export default function Home() {
               </section>
 
               {/* Partner Services */}
-              <div className="text-center mb-12 -mt-8">
+              <div className="text-center mb-12 mt-40">
                 <h2 className="text-2xl font-bold text-gray-100 mb-2 flex items-center justify-center gap-3">
                   More Than Just Cleaning
                 </h2>
@@ -232,7 +232,7 @@ export default function Home() {
             <ServicesCarousel directServices={partnerServices} />
 
             {/* Call to Action */}
-            <div className="w-[80vw] mx-auto bg-gray-900/60 backdrop-blur-sm border border-gray-700/20 rounded-2xl p-8 md:p-12 mt-30 mb-20 text-center">
+            <div className="w-[67.5vw] mx-auto bg-gray-900/60 backdrop-blur-sm border border-gray-700/20 rounded-2xl p-8 md:p-12 mt-50 mb-20 text-center">
               <h2 className="text-xl md:text-2xl font-medium text-gray-100 mb-3 flex justify-center items-center gap-3">
                 <i className="fas fa-tools text-yellow-400/80 text-lg"></i>
                 <span>Let Busy Bee simplify your home maintenance</span>
@@ -263,8 +263,8 @@ export default function Home() {
         </div>
       </section>
 
-      <footer>
-        <div className='flex h-10 items-center justify-center text-center bg-gray-950'>
+      <footer className='pt-25 bg-[#000]'>
+        <div className='flexh-10 items-center justify-center text-center bg-gray-950 py-4'>
           <p className='text-gray-100 text-sm'>© Copyright 2025: <span className='text-yellow-700 font-bold cursor-pointer' onClick={() => router.push("/")}>Busy Bee</span> All rights reserved.</p>
         </div>
       </footer>
